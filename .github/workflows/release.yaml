@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Creat Release
+    name: Create release
 
     steps:
       - name: Checkout
@@ -21,11 +21,28 @@ jobs:
         shell: bash
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
+      - name: Create archive
+        id: archive
+        shell: bash
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          release_dir="contento24"
+          archive="${release_dir}.tar.gz"
+
+          mkdir -p "${release_dir}/resources"
+          cp server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE "${release_dir}/"
+          cp resources/index.js resources/style.css resources/favicon.png resources/atelier-background-v1.png "${release_dir}/resources/"
+
+          tar -czf "${archive}" "${release_dir}"
+          tar -tzf "${archive}"
+          echo "endfilename=${archive}" >> "$GITHUB_OUTPUT"
+
       - name: Release
         uses: softprops/action-gh-release@master
         with:
           tag_name: V${{ steps.get_version.outputs.version }}
-          files:
+          files: ${{ steps.archive.outputs.endfilename }}
           body: |
             # 📝 Release Note
             - Fixes and improvements

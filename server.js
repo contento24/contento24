@@ -9,6 +9,9 @@ const MAX_MESSAGE_LENGTH = 2000;
 const MAX_NICKNAME_LENGTH = 30;
 const RATE_LIMIT_WINDOW_MS = 5000;
 const RATE_LIMIT_MESSAGES = 5;
+const TYPING_RATE_LIMIT_UPDATES = 10;
+const TYPING_TIMEOUT_MS = 2500;
+const HEARTBEAT_INTERVAL_MS = 30000;
 const allowedSystems = new Set([
   "Windows",
   "macOS",
@@ -108,18 +111,53 @@ function broadcastTypingCount() {
   });
 }
 
+function isRateLimited(timestamps, limit, now = Date.now()) {
+  while (timestamps.length > 0 && timestamps[0] <= now - RATE_LIMIT_WINDOW_MS) {
+    timestamps.shift();
+  }
+
+  if (timestamps.length >= limit) return true;
+  timestamps.push(now);
+  return false;
+}
+
+function stopTyping(ws, shouldBroadcast = true) {
+  clearTimeout(ws.typingTimer);
+  if (!ws.isTyping) return;
+
+  ws.isTyping = false;
+  if (shouldBroadcast) broadcastTypingCount();
+}
+
+const heartbeatTimer = setInterval(() => {
+  wss.clients.forEach((client) => {
+    if (client.isAlive === false) return client.terminate();
+
+    client.isAlive = false;
+    client.ping();
+  });
+}, HEARTBEAT_INTERVAL_MS);
+
+wss.on("close", () => clearInterval(heartbeatTimer));
+
 wss.on("error", (err) => {
   console.error("WebSocket server error:", err);
 });
 
 wss.on("connection", (ws) => {
   const recentMessages = [];
+  const recentTypingUpdates = [];
+  ws.isAlive = true;
   ws.isTyping = false;
   ws.typingTimer = null;
   broadcastOnlineCount();
 
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
+
   ws.on("close", () => {
-    clearTimeout(ws.typingTimer);
+    stopTyping(ws, false);
     broadcastOnlineCount();
     broadcastTypingCount();
   });
@@ -132,14 +170,21 @@ wss.on("connection", (ws) => {
       if (!parsedData || typeof parsedData !== "object") return;
 
       if (parsedData.type === "typing") {
-        clearTimeout(ws.typingTimer);
-        ws.isTyping = parsedData.isTyping === true;
-        if (ws.isTyping) {
-          ws.typingTimer = setTimeout(() => {
-            ws.isTyping = false;
-            broadcastTypingCount();
-          }, 2500);
+        if (isRateLimited(recentTypingUpdates, TYPING_RATE_LIMIT_UPDATES)) {
+          return;
         }
+
+        const nextTypingState = parsedData.isTyping === true;
+        clearTimeout(ws.typingTimer);
+
+        if (nextTypingState) {
+          ws.typingTimer = setTimeout(() => {
+            stopTyping(ws);
+          }, TYPING_TIMEOUT_MS);
+        }
+
+        if (ws.isTyping === nextTypingState) return;
+        ws.isTyping = nextTypingState;
         broadcastTypingCount();
         return;
       }
@@ -158,25 +203,13 @@ wss.on("connection", (ws) => {
           : "";
       const system = allowedSystems.has(parsedData.system)
         ? parsedData.system
-        : "unknown";
+        : "Unknown";
 
       if (!text) return;
 
-      if (ws.isTyping) {
-        clearTimeout(ws.typingTimer);
-        ws.isTyping = false;
-        broadcastTypingCount();
-      }
+      stopTyping(ws);
 
-      const now = Date.now();
-      while (
-        recentMessages.length > 0 &&
-        recentMessages[0] <= now - RATE_LIMIT_WINDOW_MS
-      ) {
-        recentMessages.shift();
-      }
-      if (recentMessages.length >= RATE_LIMIT_MESSAGES) return;
-      recentMessages.push(now);
+      if (isRateLimited(recentMessages, RATE_LIMIT_MESSAGES)) return;
 
       const broadcastPayload = JSON.stringify({
         type: "message",

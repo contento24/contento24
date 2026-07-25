@@ -22,6 +22,9 @@ const welcomeWidget = document.getElementById("welcome-widget");
 const welcomePrefix = document.getElementById("welcome-prefix");
 const welcomeBrand = document.getElementById("welcome-brand");
 const welcomeSuffix = document.getElementById("welcome-suffix");
+const MAX_RENDERED_MESSAGES = 400;
+const RECONNECT_BASE_DELAY_MS = 1000;
+const RECONNECT_MAX_DELAY_MS = 30000;
 
 const welcomeTranslations = [
   { prefix: "", suffix: "へようこそ", position: "before", lang: "ja" },
@@ -185,6 +188,7 @@ welcomeScreen?.addEventListener("animationend", (event) => {
 
 let ws;
 let reconnectTimer;
+let reconnectAttempts = 0;
 let sendGlowTimer;
 let typingIdleTimer;
 let isTyping = false;
@@ -259,18 +263,28 @@ const systemDetails = {
   },
 };
 
+const systemKeys = {
+  Windows: "windows",
+  macOS: "macos",
+  "iOS/iPadOS": "ios",
+  Linux: "linux",
+  Android: "android",
+  Chromeos: "chromeos",
+  Unknown: "unknown",
+};
+
 function detectSystem() {
   const userAgentDataPlatform = navigator.userAgentData?.platform || "";
   const source = `${userAgentDataPlatform} ${navigator.platform || ""} ${navigator.userAgent || ""}`;
 
-  if (/CrOS/i.test(source)) return "chromeos";
-  if (/Android/i.test(source)) return "android";
-  if (/iPhone|iPad|iPod/i.test(source)) return "ios";
-  if (/Mac/i.test(source) && navigator.maxTouchPoints > 1) return "ios";
-  if (/Win/i.test(source)) return "windows";
-  if (/Mac/i.test(source)) return "macos";
-  if (/Linux|X11/i.test(source)) return "linux";
-  return "unknown";
+  if (/CrOS/i.test(source)) return "Chromeos";
+  if (/Android/i.test(source)) return "Android";
+  if (/iPhone|iPad|iPod/i.test(source)) return "iOS/iPadOS";
+  if (/Mac/i.test(source) && navigator.maxTouchPoints > 1) return "iOS/iPadOS";
+  if (/Win/i.test(source)) return "Windows";
+  if (/Mac/i.test(source)) return "macOS";
+  if (/Linux|X11/i.test(source)) return "Linux";
+  return "Unknown";
 }
 
 const currentSystem = detectSystem();
@@ -333,14 +347,49 @@ function setOnlineCount(count) {
   onlineCountElement.classList.add("count-updated");
 }
 
+function getReconnectDelay() {
+  const exponentialDelay = Math.min(
+    RECONNECT_MAX_DELAY_MS,
+    RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempts,
+  );
+  const jitterMultiplier = 0.75 + Math.random() * 0.25;
+  reconnectAttempts += 1;
+  return Math.round(exponentialDelay * jitterMultiplier);
+}
+
+function scheduleReconnect() {
+  clearTimeout(reconnectTimer);
+  if (!navigator.onLine) {
+    setConnectionStatus("网络离线，等待恢复…", false);
+    return;
+  }
+
+  const delay = getReconnectDelay();
+  setConnectionStatus(
+    `失去连接，将在 ${Math.ceil(delay / 1000)} 秒后重试…`,
+    false,
+  );
+  reconnectTimer = setTimeout(initWebSocket, delay);
+}
+
 function initWebSocket() {
   clearTimeout(reconnectTimer);
+  if (
+    ws?.readyState === WebSocket.OPEN ||
+    ws?.readyState === WebSocket.CONNECTING
+  )
+    return;
+
   setConnectionStatus("正在连接…", false);
-  ws = new WebSocket(getWebSocketUrl());
+  const socket = new WebSocket(getWebSocketUrl());
+  ws = socket;
 
-  ws.onopen = () => setConnectionStatus("已连接", true);
+  socket.onopen = () => {
+    reconnectAttempts = 0;
+    setConnectionStatus("已连接", true);
+  };
 
-  ws.onmessage = (event) => {
+  socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
       if (data.type === "presence") {
@@ -351,6 +400,7 @@ function initWebSocket() {
         setTypingCount(data.typingCount);
         return;
       }
+      if (data.type !== "message") return;
 
       revealFirstMessage();
 
@@ -368,7 +418,7 @@ function initWebSocket() {
       const identity = document.createElement("div");
       identity.className = "message-identity";
 
-      const systemKey = systemDetails[data.system] ? data.system : "unknown";
+      const systemKey = systemKeys[data.system] || "unknown";
       const systemInfo = systemDetails[systemKey];
       const system = document.createElement("span");
       system.className = `message-system system-${systemKey}`;
@@ -401,20 +451,40 @@ function initWebSocket() {
       card.appendChild(messageText);
       row.append(meta, card);
       chatbox.appendChild(row);
+      const renderedMessages = chatbox.querySelectorAll(".message-row");
+      if (renderedMessages.length > MAX_RENDERED_MESSAGES) {
+        renderedMessages[0].remove();
+      }
       chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
     } catch (err) {
       console.error("Invalid server message", err);
     }
   };
 
-  ws.onerror = (err) => console.error("WebSocket error", err);
-  ws.onclose = () => {
+  socket.onerror = (err) => console.error("WebSocket error", err);
+  socket.onclose = () => {
+    if (ws !== socket) return;
+    ws = undefined;
     clearTimeout(typingIdleTimer);
     isTyping = false;
-    setConnectionStatus("失去连接，将在3秒钟后重试...", false);
-    reconnectTimer = setTimeout(initWebSocket, 3000);
+    scheduleReconnect();
   };
 }
+
+window.addEventListener("online", () => {
+  reconnectAttempts = 0;
+  initWebSocket();
+});
+
+window.addEventListener("offline", () => {
+  clearTimeout(reconnectTimer);
+  setConnectionStatus("网络离线，等待恢复…", false);
+  ws?.close();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !ws) initWebSocket();
+});
 
 const destructionEgg = {
   prompt: "root@contento24",

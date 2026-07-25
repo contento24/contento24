@@ -22,20 +22,19 @@ README 不公开具体触发方式，以保留探索的乐趣。
 
 安装依赖（以debian sid版本为例 需要root权限）
 
-```
+```bash
 apt update
 apt install -y nodejs npm git
 npm install -g pnpm
 pnpm -v # 有输出证明上面几步没有失败
 ```
 
-克隆源码并初始化项目
+下载文件包并初始化
 
-```
-git clone https://github.com/contento24/contento24.git
+```bash
+tar -xzf contento24.tar.gz
 cd contento24/
 pnpm install
-rm ./README.md ./resources/Contento24_full.jpg ./resources/Contento24_full.png ./resources/Contento24_old.svg
 ```
 
 将server.js配置为systemd服务
@@ -44,7 +43,7 @@ rm ./README.md ./resources/Contento24_full.jpg ./resources/Contento24_full.png .
 
 nodejs二进制文件所在位置 这个默认的应该没问题 如果你的有出入请自行修改
 
-```
+```ini
 cat <<'EOF'> /usr/lib/systemd/system/contento24.service
 [Unit]
 Description=Contento24 Server.js Service
@@ -64,11 +63,18 @@ EOF
 
 重载systemd并启动服务
 
-```
+```bash
 systemctl daemon-reload
 systemctl start contento24.service
 systemctl enable contento24.service # 可选 设置为开机自启
 systemctl status contento24.service # 可选 查看服务状态
+```
+
+或者也可以尝试直接启动
+
+```bash
+# 在项目根目录下
+pnpm dev
 ```
 
 ## 📚 进阶教程
