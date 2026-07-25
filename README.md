@@ -32,6 +32,7 @@ pnpm -v # 有输出证明上面几步没有失败
 下载文件包并初始化
 
 ```bash
+wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
 tar -xzf contento24.tar.gz
 cd contento24/
 pnpm install
@@ -92,7 +93,7 @@ pnpm dev
 
 如果你使用别的IP或端口请替换下面`127.0.0.1:3000`指向正确的服务器和端口
 
-```
+```ini
 location /contento24/ {
     proxy_pass http://127.0.0.1:3000/;
     proxy_http_version 1.1;
@@ -109,7 +110,7 @@ location /contento24/ {
 
 以ArchLinux为例
 
-```
+```bash
 sudo pacman -Syyuu --needed git nodejs
 # 直接安装Archlinux源中自带的pnpm将无法self-upgrade 需注意pnpm偶尔可能对npm有依赖关系
 sudo corepack enable # 是的需要root权限
