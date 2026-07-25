@@ -24,7 +24,7 @@ README 不公开具体触发方式，以保留探索的乐趣。
 
 ```bash
 apt update
-apt install -y nodejs npm git
+apt install -y nodejs npm git tar
 npm install -g pnpm
 pnpm -v # 有输出证明上面几步没有失败
 ```
@@ -34,6 +34,7 @@ pnpm -v # 有输出证明上面几步没有失败
 ```bash
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
 tar -xzf contento24.tar.gz
+rm contento24.tar.gz
 cd contento24/
 pnpm install
 ```
