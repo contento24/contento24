@@ -1,4 +1,4 @@
-![未知迪克](https://raw.githubusercontent.com/Contento24/contento24/refs/heads/main/resources/Contento24_full.png)
+![未知迪克](https://raw.githubusercontent.com/contento24/contento24/refs/heads/main/resources/Contento24_full.png)
 
 # Contento24
 
@@ -38,6 +38,7 @@ rm contento24.tar.gz
 cd contento24/
 pnpm install
 ```
+创建服务（如果你使用systemd）
 
 将server.js配置为systemd服务
 
@@ -77,6 +78,20 @@ systemctl status contento24.service # 可选 查看服务状态
 ```bash
 # 在项目根目录下
 pnpm dev
+```
+
+更新
+
+> 确保你在contento24的上级文件夹
+```bash
+rm -rf contento24/
+wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
+tar -xzf contento24.tar.gz
+rm contento24.tar.gz
+cd contento24/
+pnpm install
+cd ..
+systemctl restart contento24
 ```
 
 ## 📚 进阶教程
