@@ -46,7 +46,7 @@ pnpm install
 
 需注意要替换`path_contento24`字段为Contento24源码所在目录
 
-nodejs二进制文件所在位置 这个默认的应该没问题 如果你的有出入请自行修改
+node二进制文件所在位置 这个默认的应该没问题 如果你的有出入请自行修改
 
 ```ini
 cat <<'EOF'> /usr/lib/systemd/system/contento24.service
@@ -88,10 +88,11 @@ pnpm dev
 
 ```bash
 rm -rf contento24/
+mkdir -p contento24/
+cd contento24/
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
 tar -xzf contento24.tar.gz
 rm contento24.tar.gz
-cd contento24/
 pnpm install
 cd ..
 systemctl restart contento24
