@@ -30,7 +30,7 @@ jobs:
         uses: softprops/action-gh-release@master
         with:
           tag_name: V${{ steps.get_version.outputs.version }}
-          files: ${{ steps.archive.outputs.endfilename }}
+          files: contento24.tar.gz
           body: |
             # 📝 Release Note
             - Fixes and improvements
