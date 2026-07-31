@@ -24,7 +24,7 @@ jobs:
       - name: Build!
         shell: bash
         run: |
-          tar -czf server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ contento24.tar.gz
+          tar -czf contento24.tar.gz server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/
 
       - name: Release
         uses: softprops/action-gh-release@master

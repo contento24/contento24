@@ -18,9 +18,9 @@ README 不公开具体触发方式，以保留探索的乐趣。
 
 ## 🛠 如何自建服务器
 
-警告：默认使用 3000 端口，也可以通过 `PORT` 环境变量修改。项目同时使用 HTTP 和 WebSocket。
+警告：默认使用 3000 端口，也可以通过 `PORT` 环境变量修改。项目使用 HTTP 和 WebSocket。
 
-安装依赖（以debian sid版本为例 需要root权限）
+安装依赖（以Debian trixie之后的sid版本为例 需要root权限）
 
 ```bash
 apt update
@@ -32,12 +32,14 @@ pnpm -v # 有输出证明上面几步没有失败
 下载文件包并初始化
 
 ```bash
+mkdir -p contento24/
+cd contento24/
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
 tar -xzf contento24.tar.gz
 rm contento24.tar.gz
-cd contento24/
 pnpm install
 ```
+
 创建服务（如果你使用systemd）
 
 将server.js配置为systemd服务
@@ -82,7 +84,8 @@ pnpm dev
 
 更新
 
-> 确保你在contento24的上级文件夹
+> 确保你在contento24/的上级文件夹
+
 ```bash
 rm -rf contento24/
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
