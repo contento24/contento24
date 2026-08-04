@@ -28,8 +28,6 @@ jobs:
 
       - name: Set up pnpm
         uses: pnpm/action-setup@master
-        with:
-          package_json_file: frontend-src/package.json
 
       - name: Build!
         shell: bash

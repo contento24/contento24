@@ -14,19 +14,15 @@
 
 终端风格的隐藏交互完全由浏览器前端呈现，不会执行任何真实的系统命令，也不会将触发内容发送至服务器或广播给聊天室中的其他用户。
 
-README 不公开具体触发方式，以保留探索的乐趣。
-
 ## 🛠 如何自建服务器
 
 警告：默认使用 3000 端口，也可以通过 `PORT` 环境变量修改。项目使用 HTTP 和 WebSocket。
 
-安装依赖（以Debian trixie之后的sid版本为例 需要root权限）
+安装依赖（以Debian trixie版本为例 需要root权限）
 
 ```bash
 apt update
-apt install -y nodejs npm git tar
-npm install -g pnpm
-pnpm -v # 有输出证明上面几步没有失败
+apt install -y wget tar
 ```
 
 下载文件包并初始化
@@ -37,7 +33,6 @@ cd contento24/
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
 tar -xzf contento24.tar.gz
 rm contento24.tar.gz
-pnpm install
 ```
 
 创建服务（如果你使用systemd）
@@ -51,7 +46,7 @@ node二进制文件所在位置 这个默认的应该没问题 如果你的有�
 ```ini
 cat <<'EOF'> /usr/lib/systemd/system/contento24.service
 [Unit]
-Description=Contento24 Server.js Service
+Description=Contento24 Service
 Documentation=https://867678.xyz/project/contento24/
 After=network.target
 
@@ -93,7 +88,6 @@ cd contento24/
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
 tar -xzf contento24.tar.gz
 rm contento24.tar.gz
-pnpm install
 cd ..
 systemctl restart contento24
 ```
@@ -105,7 +99,7 @@ systemctl restart contento24
 添加环境变量可以指定某些参数以适应更多工作环境。
 
 - `PORT`：服务监听端口，默认为 `3000`。
-- `ALLOWED_ORIGINS`：允许建立 WebSocket 连接的来源，多个来源使用英文逗号分隔；未设置时允许所有来源。
+- `ALLOWED_ORIGINS`：允许建立 WebSocket 连接的来源，多个来源使用半角逗号分隔；未设置时允许所有来源。
 
 ### 🛜 使用Nginx反向代理（可以添加TLS）
 
@@ -144,7 +138,7 @@ pnpm dev # 启动ws服务器
 
 ## 🙏 特别鸣谢
 
-排名不分先后
+> 排名不分先后
 
 项目创建、想法、美术、UI优化、联合维护者：[MidQwerty](https://github.com/midqwerty-alt)
 
