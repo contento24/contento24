@@ -21,10 +21,21 @@ jobs:
         shell: bash
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
+      - name: Set up Node.js
+        uses: actions/setup-node@main
+        with:
+          node-version: latest
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@master
+        with:
+          package_json_file: frontend-src/package.json
+
       - name: Build!
         shell: bash
         run: |
-          tar -cvzf contento24.tar.gz server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/
+          pnpm install
+          tar -cvzf contento24.tar.gz server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
 
       - name: Release
         uses: softprops/action-gh-release@master
