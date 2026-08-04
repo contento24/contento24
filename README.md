@@ -22,7 +22,7 @@
 
 ```bash
 apt update
-apt install -y node wget tar
+apt install -y nodejs wget tar
 ```
 
 下载文件包并初始化
