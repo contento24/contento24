@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:
@@ -44,9 +45,15 @@ jobs:
             - Fixes and improvements
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  sync:
-    needs: build
-    uses: moaeiou/moaeiou/.github/workflows/rsync.yaml@main
-    with:
-      local: contento24.tar.zst
-      remote: /var/www/html/
+
+      - name: Get token
+        shell: bash
+        run: |
+          echo $(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=cf-worker" | jq -r '.value')
+
+      - name: Send to mirror
+        uses: moaeiou/moaeiou/actions/rsync@main
+        with:
+          local: contento24.tar.zst
+          remote: /var/www/html/
+          key:
