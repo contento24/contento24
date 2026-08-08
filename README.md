@@ -144,20 +144,6 @@ pnpm dev # 启动ws服务器
 
 服务器、细节与性能优化：[MoAEIOU](https://867678.xyz)
 
-> 提供服务或引用软件：
-
-域名提供商：<https://spaceship.com>
-
-CDN、DNS、攻击保护：<https://cloudflare.com>
-
-代码托管和分发：<https://github.com>
-
-AI：<https://chatgpt.com> <https://claude.ai>
-
-Web服务器：<https://nginx.org>
-
-服务器提供商：<https://colocrossing.com>
-
 ## ⚖️ 项目许可
 
 此项目以GNU Affero General Public License v3.0或更高版本授权
