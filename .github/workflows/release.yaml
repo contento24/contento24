@@ -11,7 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Billie Jean, baby please, he's a criminal
-
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -45,9 +44,9 @@ jobs:
             - Fixes and improvements
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Syncer
-        uses: moaeiou/moaeiou/.github/workflows/rsync.yaml@main
-        with:
-          local: contento24.tar.zst
-          remote: /var/www/html/
+  sync:
+    needs: build
+    uses: moaeiou/moaeiou/.github/workflows/rsync.yaml@main
+    with:
+      local: contento24.tar.zst
+      remote: /var/www/html/
