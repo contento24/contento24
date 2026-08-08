@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Billie Jane, baby please, he's a criminal
+    name: Billie Jean, baby please, he's a criminal
 
     steps:
       - name: Checkout
@@ -34,12 +34,13 @@ jobs:
         run: |
           pnpm install
           tar -cvzf contento24.tar.gz server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
+          tar -cvf --zstd contento24.tar.zst server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
 
       - name: Release
         uses: softprops/action-gh-release@master
         with:
           tag_name: V${{ steps.get_version.outputs.version }}
-          files: contento24.tar.gz
+          files: contento24.tar.*
           body: |
             # 📝 Release Note
             - Fixes and improvements

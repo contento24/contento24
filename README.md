@@ -79,14 +79,14 @@ pnpm dev
 
 更新
 
-> 确保你在contento24/的上级文件夹
+确保你在contento24/的上级文件夹
 
 ```bash
 rm -rf contento24/
 mkdir -p contento24/
 cd contento24/
-wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
-tar -xzf contento24.tar.gz
+wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.zst
+tar -xvf contento24.tar.gz
 rm contento24.tar.gz
 cd ..
 systemctl restart contento24
@@ -134,11 +134,10 @@ git clone git@github.com:contento24/contento24.git
 cd contento24
 pnpm install
 pnpm dev # 启动ws服务器
+pnpm check # 检查代码问题
 ```
 
 ## 🙏 特别鸣谢
-
-> 排名不分先后
 
 项目创建、想法、美术、UI优化、联合维护者：[MidQwerty](https://github.com/midqwerty-alt)
 

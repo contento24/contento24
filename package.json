@@ -1,14 +1,13 @@
 {
   "name": "Contento24",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "engines": {
     "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "node ./server.js",
     "check": "node --check server.js && node --check resources/index.js && prettier . --check",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format": "prettier . --write"
   },
   "devDependencies": {
     "prettier": "^3.9.6",
