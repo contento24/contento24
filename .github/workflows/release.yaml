@@ -34,7 +34,7 @@ jobs:
         run: |
           pnpm install
           tar -cvzf contento24.tar.gz server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
-          tar -cvf --zstd contento24.tar.zst server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
+          tar -cvf contento24.tar.zst --zstd server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
 
       - name: Release
         uses: softprops/action-gh-release@master
