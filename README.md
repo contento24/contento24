@@ -30,9 +30,9 @@ apt install -y nodejs wget tar
 ```bash
 mkdir -p contento24/
 cd contento24/
-wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.gz
-tar -xzf contento24.tar.gz
-rm contento24.tar.gz
+wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.zst
+tar -xzf contento24.tar.zst
+rm contento24.tar.zst
 ```
 
 创建服务（如果你使用systemd）
@@ -86,8 +86,8 @@ rm -rf contento24/
 mkdir -p contento24/
 cd contento24/
 wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.zst
-tar -xvf contento24.tar.gz
-rm contento24.tar.gz
+tar -xvf contento24.tar.zst
+rm contento24.tar.zst
 cd ..
 systemctl restart contento24
 ```

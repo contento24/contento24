@@ -33,7 +33,6 @@ jobs:
         shell: bash
         run: |
           pnpm install
-          tar -cvzf contento24.tar.gz server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
           tar -cvf contento24.tar.zst --zstd server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
 
       - name: Release
@@ -46,3 +45,4 @@ jobs:
             - Fixes and improvements
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
