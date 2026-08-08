@@ -39,10 +39,15 @@ jobs:
         uses: softprops/action-gh-release@master
         with:
           tag_name: V${{ steps.get_version.outputs.version }}
-          files: contento24.tar.*
+          files: contento24.tar.zst
           body: |
             # 📝 Release Note
             - Fixes and improvements
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Syncer
+        uses: moaeiou/moaeiou/.github/workflows/rsync.yaml@main
+        with:
+          local: contento24.tar.zst
+          remote: /var/www/html/
