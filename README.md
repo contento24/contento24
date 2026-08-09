@@ -34,7 +34,6 @@ wget https://github.com/contento24/contento24/releases/latest/download/contento2
 tar -xzf contento24.tar.zst
 rm contento24.tar.zst
 ```
-
 创建服务（如果你使用systemd）
 
 将server.js配置为systemd服务
