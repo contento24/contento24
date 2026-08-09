@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write
   contents: write
 
 jobs:
@@ -51,3 +50,4 @@ jobs:
         with:
           local: contento24.tar.zst
           remote: /var/www/html/
+          key: ${{ secrets.CC_LA_KEY }}
