@@ -25,6 +25,15 @@ const welcomeSuffix = document.getElementById("welcome-suffix");
 const MAX_RENDERED_MESSAGES = 400;
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30000;
+const NEAR_BOTTOM_THRESHOLD_PX = 120;
+let renderedMessageCount = 0;
+
+function isNearBottom() {
+  return (
+    chatbox.scrollHeight - chatbox.scrollTop - chatbox.clientHeight <
+    NEAR_BOTTOM_THRESHOLD_PX
+  );
+}
 
 const welcomeTranslations = [
   { prefix: "", suffix: "へようこそ", position: "before", lang: "ja" },
@@ -451,11 +460,14 @@ function initWebSocket() {
       card.appendChild(messageText);
       row.append(meta, card);
       chatbox.appendChild(row);
-      const renderedMessages = chatbox.querySelectorAll(".message-row");
-      if (renderedMessages.length > MAX_RENDERED_MESSAGES) {
-        renderedMessages[0].remove();
+      renderedMessageCount += 1;
+      if (renderedMessageCount > MAX_RENDERED_MESSAGES) {
+        chatbox.querySelector(".message-row")?.remove();
+        renderedMessageCount -= 1;
       }
-      chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
+      if (isNearBottom()) {
+        chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "auto" });
+      }
     } catch (err) {
       console.error("Invalid server message", err);
     }

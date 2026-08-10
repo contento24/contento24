@@ -1,10 +1,13 @@
-const fs = require("fs");
-const http = require("http");
-const path = require("path");
-const WebSocket = require("ws");
+import { stat as _stat, readFile } from "fs";
+import { createServer } from "http";
+import { resolve, relative, isAbsolute, extname } from "path";
+import { WebSocket, WebSocketServer } from "ws";
+
+const Server = WebSocketServer;
+const OPEN = WebSocket.OPEN;
 
 const PORT = Number(process.env.PORT) || 3000;
-const STATIC_ROOT = __dirname;
+const STATIC_ROOT = import.meta.dirname;
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_NICKNAME_LENGTH = 30;
 const RATE_LIMIT_WINDOW_MS = 5000;
@@ -32,13 +35,54 @@ const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
   ".png": "image/png",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
 };
 
-const httpServer = http.createServer((req, res) => {
+const SECURITY_HEADERS = {
+  "Content-Security-Policy":
+    "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' ws: wss:; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "no-referrer",
+};
+
+const RESOURCE_MAX_AGE_SECONDS = 24 * 60 * 60;
+const STATIC_CACHE = new Map();
+
+function serveStaticFile(req, res, data, stat, contentType, cacheControl) {
+  const etag = `"${stat.mtimeMs.toString(16)}-${stat.size.toString(16)}"`;
+  const lastModified = stat.mtime.toUTCString();
+
+  if (
+    req.headers["if-none-match"] === etag ||
+    req.headers["if-modified-since"] === lastModified
+  ) {
+    res.writeHead(304, {
+      "Cache-Control": cacheControl,
+      ETag: etag,
+      ...SECURITY_HEADERS,
+    });
+    return res.end();
+  }
+
+  res.writeHead(200, {
+    "Content-Type": contentType,
+    "Cache-Control": cacheControl,
+    ETag: etag,
+    "Last-Modified": lastModified,
+    "X-Content-Type-Options": "nosniff",
+    ...SECURITY_HEADERS,
+  });
+  return res.end(data);
+}
+
+const httpServer = createServer((req, res) => {
   let pathname;
 
   try {
@@ -46,68 +90,130 @@ const httpServer = http.createServer((req, res) => {
       new URL(req.url, "http://localhost").pathname,
     );
   } catch {
-    res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
+    res.writeHead(400, {
+      "Content-Type": "text/plain; charset=utf-8",
+      ...SECURITY_HEADERS,
+    });
+    return res.end("400 Bad Request");
+  }
+
+  // NUL 字节会让 fs.readFile 同步抛错并击穿整个进程，直接拒绝
+  if (pathname.includes("\0")) {
+    res.writeHead(400, {
+      "Content-Type": "text/plain; charset=utf-8",
+      ...SECURITY_HEADERS,
+    });
     return res.end("400 Bad Request");
   }
 
   if (pathname === "/") pathname = "/index.html";
 
-  const filePath = path.resolve(STATIC_ROOT, `.${pathname}`);
-  const relativePath = path.relative(STATIC_ROOT, filePath);
-  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-    res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
-    return res.end("403 Forbidden");
+  const filePath = resolve(STATIC_ROOT, `.${pathname}`);
+  const relativePath = relative(STATIC_ROOT, filePath);
+  // 只公开 index.html 与 resources/ 下的静态资源，避免 .git、源码等被下载
+  if (
+    relativePath.startsWith("..") ||
+    isAbsolute(relativePath) ||
+    (relativePath !== "index.html" && !relativePath.startsWith("resources/"))
+  ) {
+    res.writeHead(404, {
+      "Content-Type": "text/plain; charset=utf-8",
+      ...SECURITY_HEADERS,
+    });
+    return res.end("404 Not Found");
   }
 
   const contentType =
-    mimeTypes[path.extname(filePath).toLowerCase()] ||
-    "application/octet-stream";
+    mimeTypes[extname(filePath).toLowerCase()] || "application/octet-stream";
 
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+  const cacheControl =
+    relativePath === "index.html"
+      ? "no-cache"
+      : `public, max-age=${RESOURCE_MAX_AGE_SECONDS}`;
+
+  _stat(filePath, (statErr, stat) => {
+    if (statErr || !stat.isFile()) {
+      res.writeHead(404, {
+        "Content-Type": "text/plain; charset=utf-8",
+        ...SECURITY_HEADERS,
+      });
       return res.end("404 Not Found");
     }
 
-    res.writeHead(200, {
-      "Content-Type": contentType,
-      "X-Content-Type-Options": "nosniff",
+    const cached = STATIC_CACHE.get(filePath);
+    if (
+      cached &&
+      cached.mtimeMs === stat.mtimeMs &&
+      cached.size === stat.size
+    ) {
+      return serveStaticFile(
+        req,
+        res,
+        cached.data,
+        stat,
+        contentType,
+        cacheControl,
+      );
+    }
+
+    readFile(filePath, (readErr, data) => {
+      if (readErr) {
+        res.writeHead(404, {
+          "Content-Type": "text/plain; charset=utf-8",
+          ...SECURITY_HEADERS,
+        });
+        return res.end("404 Not Found");
+      }
+
+      STATIC_CACHE.set(filePath, {
+        data,
+        mtimeMs: stat.mtimeMs,
+        size: stat.size,
+      });
+      serveStaticFile(req, res, data, stat, contentType, cacheControl);
     });
-    return res.end(data);
   });
 });
 
-const wss = new WebSocket.Server({
-  server: httpServer,
-  maxPayload: 16 * 1024,
-  verifyClient: ({ origin }, callback) => {
-    callback(allowedOrigins.size === 0 || allowedOrigins.has(origin), 403);
-  },
+const wss = new Server({ noServer: true, maxPayload: 16 * 1024 });
+
+httpServer.on("upgrade", (request, socket, head) => {
+  const origin = request.headers.origin;
+  if (allowedOrigins.size > 0 && (!origin || !allowedOrigins.has(origin))) {
+    socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
+    socket.destroy();
+    return;
+  }
+
+  wss.handleUpgrade(request, socket, head, (ws) => {
+    wss.emit("connection", ws, request);
+  });
 });
 
 function broadcastOnlineCount() {
   const onlineCount = [...wss.clients].filter(
-    (client) => client.readyState === WebSocket.OPEN,
+    (client) => client.readyState === OPEN,
   ).length;
   const payload = JSON.stringify({ type: "presence", onlineCount });
 
   wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) client.send(payload);
+    if (client.readyState === OPEN) client.send(payload);
   });
 }
 
 function broadcastTypingCount() {
-  const typingClients = [...wss.clients].filter(
-    (client) => client.readyState === WebSocket.OPEN && client.isTyping,
-  );
+  const typingCount = [...wss.clients].filter(
+    (client) => client.readyState === OPEN && client.isTyping,
+  ).length;
+  const payloadOthers = JSON.stringify({ type: "typing", typingCount });
+  const payloadSelf = JSON.stringify({
+    type: "typing",
+    typingCount: Math.max(0, typingCount - 1),
+  });
 
   wss.clients.forEach((client) => {
-    if (client.readyState !== WebSocket.OPEN) return;
-    const typingCount = Math.max(
-      0,
-      typingClients.length - (client.isTyping ? 1 : 0),
-    );
-    client.send(JSON.stringify({ type: "typing", typingCount }));
+    if (client.readyState !== OPEN) return;
+    client.send(client.isTyping ? payloadSelf : payloadOthers);
   });
 }
 
@@ -225,7 +331,7 @@ wss.on("connection", (ws) => {
       });
 
       wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client.readyState === OPEN) {
           client.send(broadcastPayload);
         }
       });

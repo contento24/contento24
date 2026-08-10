@@ -1003,7 +1003,11 @@ body.welcome-started .chat-container {
 body {
   background:
     linear-gradient(148deg, rgba(3, 6, 11, 0.3), rgba(5, 10, 18, 0.18)),
-    url("./atelier-background-v1.png") center center / cover no-repeat fixed;
+    image-set(
+        url("./atelier-background-v1.avif") type("image/avif"),
+        url("./atelier-background-v1.png") type("image/png")
+      )
+      center center / cover no-repeat fixed;
 }
 body::before,
 body::after {

@@ -1,4 +1,4 @@
-![未知迪克](https://raw.githubusercontent.com/contento24/contento24/refs/heads/main/resources/Contento24_full.png)
+![未知迪克](https://raw.githubusercontent.com/contento24/contento24/refs/heads/main/origin_resources/Contento24.png)
 
 # Contento24
 
@@ -23,6 +23,7 @@
 ```bash
 apt update
 apt install -y nodejs wget tar
+# 需保证最少是个nodejs 24.0.0，tar支持解压zstd，wget支持https
 ```
 
 下载文件包并初始化
@@ -34,6 +35,7 @@ wget https://github.com/contento24/contento24/releases/latest/download/contento2
 tar -xzf contento24.tar.zst
 rm contento24.tar.zst
 ```
+
 创建服务（如果你使用systemd）
 
 将server.js配置为systemd服务
@@ -101,8 +103,6 @@ systemctl restart contento24
 - `ALLOWED_ORIGINS`：允许建立 WebSocket 连接的来源，多个来源使用半角逗号分隔；未设置时允许所有来源。
 
 ### 🛜 使用Nginx反向代理（可以添加TLS）
-
-需注意透传IP 否则显示的发送者IP可能不正确
 
 如果你使用别的IP或端口请替换下面`127.0.0.1:3000`指向正确的服务器和端口
 

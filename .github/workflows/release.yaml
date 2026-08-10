@@ -31,7 +31,7 @@ jobs:
       - name: Build!
         shell: bash
         run: |
-          pnpm install
+          pnpm install --prod
           tar -cvf contento24.tar.zst --zstd server.js index.html package.json pnpm-lock.yaml pnpm-workspace.yaml LICENSE resources/ node_modules/
 
       - name: Release
