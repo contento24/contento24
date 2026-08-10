@@ -12,7 +12,7 @@
 >
 > 项目使用 HTTP（可能有HTTPS 推荐使用） 和 WebSocket（也可以用WSS），请确保您的环境支持上述协议。
 
-### 安装依赖（以Debian trixie版本为例 需要root权限）
+### ⬇️ 安装依赖（以Debian trixie版本为例 需要root权限）
 
 > 需保证最少是个nodejs 24.0.0，tar支持解压zstd，wget支持https
 
@@ -21,7 +21,7 @@ apt update
 apt install -y nodejs wget tar
 ```
 
-### 下载文件包并初始化
+### 📦 下载文件包并初始化
 
 > 如果当前目录已经有一个contento24 请将其删除 否则将可能安装失败
 
@@ -33,7 +33,7 @@ tar -xzf contento24.tar.zst
 rm contento24.tar.zst
 ```
 
-### 更新
+### ⚙️ 更新
 
 > 确保你在contento24/的上级文件夹
 
@@ -48,7 +48,7 @@ cd ..
 systemctl restart contento24
 ```
 
-### 运行服务
+### ⚙ 运行服务
 
 ```bash
 cd contento24/
@@ -62,7 +62,7 @@ node ./server.js #必须有nodejs
 Listening on http://localhost:3000
 ```
 
-### 创建服务（如果你使用systemd）
+### + 创建服务（如果你使用systemd）
 
 将server.js配置为systemd服务
 
@@ -90,7 +90,7 @@ WantedBy=multi-user.target
 EOF
 ```
 
-### 重载systemd并启动服务
+### 🛢 重载systemd并启动服务
 
 ```bash
 systemctl daemon-reload
@@ -101,7 +101,7 @@ systemctl status contento24.service # 可选 查看服务状态
 
 ## 📚 进阶教程
 
-### 可选环境变量：
+### PATH 可选环境变量：
 
 添加环境变量可以指定某些参数以适应更多工作环境。
 
@@ -157,7 +157,7 @@ pnpm check # 检查代码格式。这不能检查问题，只是语法检查
 
 消歧义：项目本名`Contento24` 但为了方便管理 所有出现在URL或Shell中的名称统一为`contento24`
 
-### 隐藏交互说明
+### 👻 隐藏交互说明
 
 在聊天框中还藏有少量终端风格的隐藏交互。熟悉 Linux 与 macOS 命令行的用户，或许会在某次输入时偶然遇见。
 
