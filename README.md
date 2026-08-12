@@ -76,7 +76,7 @@ Listening on http://localhost:3000
 cat <<'EOF'> /usr/lib/systemd/system/contento24.service
 [Unit]
 Description=Contento24 Service
-Documentation=https://867678.xyz/project/contento24/
+Documentation=https://867678.xyz/projects/contento24/
 After=network.target
 
 [Service]
