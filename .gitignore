@@ -13,13 +13,8 @@ pnpm-debug.log*
 .DS_Store
 *.app
 
-# Android App ignore
-*.apk
-*.idsig
-
 # jetbrains setting folder
 .idea/
 
 # VSCode setting floder
 .vscode/
-
