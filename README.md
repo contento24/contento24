@@ -33,21 +33,6 @@ tar -xzf contento24.tar.zst
 rm contento24.tar.zst
 ```
 
-### ⚙️ 更新
-
-> 确保你在contento24/的上级文件夹
-
-```bash
-rm -rf contento24/
-mkdir -p contento24/
-cd contento24/
-wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.zst
-tar -xvf contento24.tar.zst
-rm contento24.tar.zst
-cd ..
-systemctl restart contento24
-```
-
 ### ⚙ 运行服务
 
 ```bash
@@ -97,6 +82,21 @@ systemctl daemon-reload
 systemctl start contento24.service
 systemctl enable contento24.service # 可选 设置为开机自启
 systemctl status contento24.service # 可选 查看服务状态
+```
+
+### ⬆️ 更新
+
+> 确保你在contento24/的上级文件夹
+
+```bash
+rm -rf contento24/
+mkdir -p contento24/
+cd contento24/
+wget https://github.com/contento24/contento24/releases/latest/download/contento24.tar.zst
+tar -xvf contento24.tar.zst
+rm contento24.tar.zst
+cd ..
+systemctl restart contento24
 ```
 
 ## 📚 进阶教程
