@@ -32,10 +32,12 @@ jobs:
         shell: bash
         run: |
           pnpm install --prod
+          npx --yes esbuild --minify --allow-overwrite --legal-comments=none index.html --outfile=./index.html
           npx --yes esbuild --minify --allow-overwrite --legal-comments=none server.js --outfile=./server.js
           npx --yes esbuild --minify --allow-overwrite --legal-comments=none resources/index.js --outfile=resources/index.js
           npx --yes esbuild --minify --allow-overwrite --legal-comments=none resources/style.css --outfile=resources/style.css
           curl -LO https://raw.githubusercontent.com/moaeiou/moaeiou/refs/heads/main/.github/workflows/format.js
+          node format.js index.html ./index.html
           node format.js server.js ./server.js
           node format.js resources/index.js resources/index.js
           node format.js resources/style.css resources/style.css
