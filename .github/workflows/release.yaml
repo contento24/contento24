@@ -31,8 +31,7 @@ jobs:
       - name: Build!
         shell: bash
         run: |
-          pnpm install --prod
-          npx --yes esbuild --minify --allow-overwrite --legal-comments=none index.html --outfile=./index.html
+          pnpm install
           npx --yes esbuild --minify --allow-overwrite --legal-comments=none server.js --outfile=./server.js
           npx --yes esbuild --minify --allow-overwrite --legal-comments=none resources/index.js --outfile=resources/index.js
           npx --yes esbuild --minify --allow-overwrite --legal-comments=none resources/style.css --outfile=resources/style.css
