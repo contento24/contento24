@@ -1,4 +1,4 @@
-![未知迪克](https://raw.githubusercontent.com/contento24/contento24/refs/heads/main/origin_resources/Contento24.png)
+![未知迪克](https://cdn.jsdelivr.net/gh/contento24/contento24@main/origin_resources/Contento24.png)
 
 # Contento24
 
