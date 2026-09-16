@@ -1,7 +1,7 @@
 name: Don't leave me behind
 
 on:
-  push:
+  #push:
   workflow_dispatch:
 
 permissions:
