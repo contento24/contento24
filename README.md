@@ -2,7 +2,7 @@
 
 # Contento24
 
-[测试聊天室](https://l.867678.xyz/contento24/)
+[测试聊天室](https://la.867678.xyz/contento24/)
 
 一个开源的实时公共 WebSocket 聊天室。消息只在在线用户之间广播，服务器不保存聊天记录，刷新页面后本地内容会消失。
 
