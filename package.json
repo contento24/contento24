@@ -1,6 +1,6 @@
 {
   "name": "Contento24",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "type": "module",
   "engines": {
     "node": ">=24.21.0"
@@ -16,5 +16,5 @@
   "devDependencies": {
     "prettier": "^3.9.7"
   },
-  "packageManager": "pnpm@latest"
+  "packageManager": "pnpm@12.5.1"
 }
