@@ -11,10 +11,10 @@
     "check": "node --check . && prettier . --check"
   },
   "dependencies": {
-    "ws": "^latest"
+    "ws": "latest"
   },
   "devDependencies": {
-    "prettier": "^latest"
+    "prettier": "latest"
   },
   "packageManager": "pnpm@latest"
 }
