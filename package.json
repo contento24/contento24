@@ -1,6 +1,6 @@
 {
   "name": "Contento24",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "type": "module",
   "engines": {
     "node": ">=24.21.0"
@@ -8,13 +8,13 @@
   "scripts": {
     "dev": "node ./server.js",
     "format": "prettier . --write",
-    "check": "node --check server.js && node --check resources/index.js && prettier . --check"
+    "check": "node --check . && prettier . --check"
   },
   "dependencies": {
-    "ws": "^8.21.3"
+    "ws": "^latest"
   },
   "devDependencies": {
-    "prettier": "^3.9.7"
+    "prettier": "^latest"
   },
-  "packageManager": "pnpm@12.5.1"
+  "packageManager": "pnpm@latest"
 }
